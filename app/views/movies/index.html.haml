@@ -7,14 +7,15 @@
   - @all_ratings.each do |rating|
     = rating
     = check_box_tag "ratings[#{rating}]", 'yes',  (@selected_ratings.include? rating) ? true : false 
+  = hidden_field_tag 'sortby', "#{@sort}"
   = submit_tag 'Refresh', :id => 'ratings_submit'
 
 %table#movies
   %thead
     %tr
-      %th{ :class => (@sort == 'title') ? 'hilite' : '' }= link_to "Movie Title", movies_path({:sortby => 'title'}), :id => 'title_header'
+      %th{ :class => (@sort == 'title') ? 'hilite' : '' }= link_to "Movie Title", movies_path({:sortby => 'title', :ratings => @selected_ratings}), :id => 'title_header'
       %th Rating
-      %th{ :class => (@sort == 'release_date') ? 'hilite' : '' }= link_to "Release Date", movies_path({:sortby => 'release_date'}), :id => 'release_date_header'
+      %th{ :class => (@sort == 'release_date') ? 'hilite' : '' }= link_to "Release Date", movies_path({:sortby => 'release_date', :ratings => @selected_ratings}), :id => 'release_date_header'
       %th More Info
   %tbody
     - @movies.each do |movie|

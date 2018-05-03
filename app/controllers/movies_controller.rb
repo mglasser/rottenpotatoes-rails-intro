@@ -13,23 +13,41 @@ class MoviesController < ApplicationController
   def index
     # To generate the filter check boxes
     @all_ratings = Movie.all_ratings
+
     # To display only selected rated films
-    @selected_ratings = @all_ratings
+    # Navigated to index via Ratings filter
     if params[:ratings]
-      @selected_ratings = params[:ratings].keys
+      @selected_ratings = params[:ratings]
+        if @selected_ratings.respond_to? :keys
+          @selected_ratings = @selected_ratings.keys
+        end
       @movies = Movie.all.where(rating: @selected_ratings)
+      session[:rate] = @selected_ratings
+    # Navigated to index another way, check for previous filter settings
+    elsif session[:rate]
+      @selected_ratings = session[:rate]
+      @movies = Movie.all.where(rating: @selected_ratings)
+      @redirect = 'ratings'
+    # No ratings filter set -> check & display all
     else
+      @selected_ratings = @all_ratings
       @movies = Movie.all
     end
     
     # Sort by selected column header
-    @sort = nil
-    if params[:sortby] == 'title'
-      @sort = 'title'
-      @movies = @movies.sort_by {|m| m.title }
-    elsif params[:sortby] == 'release_date'
-      @sort = 'release_date'
-      @movies = @movies.sort_by {|m| m.release_date }
+    if params[:sortby] == 'title' || params[:sortby] == 'release_date'
+      @sort = params[:sortby]
+      @movies = @movies.sort_by &@sort.to_sym
+      session[:sort] = @sort
+    elsif session[:sort]
+      @sort = session[:sort]
+      @movies = @movies.sort_by &@sort.to_sym
+      @redirect = 'sort'
+    end
+
+    if (session[:rate] && params[:ratings] == nil) || (session[:sort] && params[:sortby] == nil)
+      flash.keep
+      redirect_to movies_path({ :ratings => @selected_ratings, :sortby => @sort })
     end
   end
 
