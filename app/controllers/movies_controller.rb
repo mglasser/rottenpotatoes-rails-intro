@@ -21,13 +21,12 @@ class MoviesController < ApplicationController
         if @selected_ratings.respond_to? :keys
           @selected_ratings = @selected_ratings.keys
         end
-      @movies = Movie.all.where(rating: @selected_ratings)
+      @movies = Movie.where(rating: @selected_ratings)
       session[:rate] = @selected_ratings
     # Navigated to index another way, check for previous filter settings
     elsif session[:rate]
       @selected_ratings = session[:rate]
-      @movies = Movie.all.where(rating: @selected_ratings)
-      @redirect = 'ratings'
+      @movies = Movie.where(rating: @selected_ratings)
     # No ratings filter set -> check & display all
     else
       @selected_ratings = @all_ratings
@@ -42,7 +41,6 @@ class MoviesController < ApplicationController
     elsif session[:sort]
       @sort = session[:sort]
       @movies = @movies.sort_by &@sort.to_sym
-      @redirect = 'sort'
     end
 
     if (session[:rate] && params[:ratings] == nil) || (session[:sort] && params[:sortby] == nil)
