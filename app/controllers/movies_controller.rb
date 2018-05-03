@@ -11,7 +11,18 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    # To generate the filter check boxes
+    @all_ratings = Movie.all_ratings
+    # To display only selected rated films
+    @selected_ratings = @all_ratings
+    if params[:ratings]
+      @selected_ratings = params[:ratings].keys
+      @movies = Movie.all.where(rating: @selected_ratings)
+    else
+      @movies = Movie.all
+    end
+    
+    # Sort by selected column header
     @sort = nil
     if params[:sortby] == 'title'
       @sort = 'title'
